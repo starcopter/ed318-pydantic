@@ -15,6 +15,7 @@ from .types import (
     CodeZoneReasonType,
     CodeZoneType,
     CodeZoneVariantType,
+    TextLongType,
     TextShortType,
     URNType,
 )
@@ -76,7 +77,7 @@ class UASZoneVersion(BaseModel):
     reason: Annotated[list[CodeZoneReasonType], Field(max_length=9)] | None = None
     otherReasonInfo: list[TextShortType] | None = None
     regulationExemption: CodeYesNoType | None = None
-    message: Annotated[list[TextShortType], Field(min_length=1)] | None = None
+    message: Annotated[list[TextLongType], Field(min_length=1)] | None = None
     zoneAuthority: Annotated[list[Authority], Field(min_length=1)]
     limitedApplicability: list[TimePeriod] | None = None
     extendedProperties: dict[str, Any] | None = None
