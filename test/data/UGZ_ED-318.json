@@ -1,0 +1,101 @@
+{
+    "type": "FeatureCollection",
+    "title": "SampleUAS GeoZOnes",
+    "metadata": {
+        "validFrom": "2024-01-01T15:59:59Z",
+        "issued": "2024-12-31T15:59:59Z"
+    },
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+				"coordinates": [
+					[
+						[
+							-3.698523,
+							40.602421
+						],
+						[
+							-3.698456,
+							40.601492
+						],
+						[
+							-3.696733,
+							40.601695
+						],
+						[
+							-3.696642,
+							40.602599
+						],
+						[
+							-3.698523,
+							40.602421
+						]
+					]
+				],
+				"layer": {
+					"upper": 150,
+					"upperReference": "AGL",
+					"lower": 0,
+					"lowerReference": "AGL",
+					"uom": "m"
+				}
+            },
+            "properties": {
+                "identifier": "Alter",
+                "country": "ESP",
+                "name": [
+                    {"text": "LFPG-2",
+                    "lang": "en-GB"}
+                ],
+                "variant": "COMMON",
+                "type": "REQ_AUTHORIZATION",
+                "reason": [
+                    "AIR_TRAFFIC",
+                    "OTHER"
+                ],
+                "otherReasonInfo": [
+                    {
+                        "text": "Flying Whales - part 2",
+                        "lang": "en-GB"
+                    },
+                    {
+                        "text": "Baleines Volantes 2-ème partie",
+                        "lang": "fr-BE"
+                    }
+                ],
+                "limitedApplicability": [
+                    {
+                        "startDateTime": "2024-01-01T15:59:59Z",
+                        "endDateTime": "2024-12-31T15:59:59Z",
+                        "schedule": [
+                            {
+                                "day": ["ANY"],
+                                "startTime": "01:00:00Z",
+                                "endTime": "23:00:00Z"
+                            },
+                            {
+                                "day": ["SUN"],
+                                "startTime": "10:00:00Z",
+                                "endTime": "12:00:00Z"
+                            }
+                        ]
+                    }
+                ],
+                "zoneAuthority": [
+                    {
+                        "name": [
+                            {
+                                "text": "LFPG-UASZoneManager",
+                                "lang": "en-us"
+                            }
+                        ],
+                        "email": "UASZoneManager@lfpg.fr",
+                        "purpose": "AUTHORIZATION"
+                    }
+                ]
+            }
+        }
+    ]
+}

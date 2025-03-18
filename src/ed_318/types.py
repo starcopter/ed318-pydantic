@@ -128,6 +128,10 @@ Allowed Values:
 """
 
 
+_LanguageCode = Annotated[str, Field(max_length=5, pattern=re.compile(r"^[a-z]{2}-[A-Z]{2}$", re.IGNORECASE))]
+"""ISO3166 combined with ISO639-1 (2-letter country code + 2-letter language code)."""
+
+
 class TextShortType(BaseModel):
     """ED-318 4.2.5.10 TextShortType
 
@@ -136,7 +140,7 @@ class TextShortType(BaseModel):
     """
 
     text: Annotated[str, Field(max_length=200)]
-    lang: Annotated[str, Field(max_length=5, pattern=r"^[a-z]{2}-[A-Z]{2}$")] | None = None
+    lang: _LanguageCode | None = None
 
 
 class TextLongType(BaseModel):
@@ -147,7 +151,7 @@ class TextLongType(BaseModel):
     """
 
     text: Annotated[str, Field(max_length=1_000)]
-    lang: Annotated[str, Field(max_length=5, pattern=r"^[a-z]{2}-[A-Z]{2}$")] | None = None
+    lang: _LanguageCode | None = None
 
 
 CodeWeekdayType = Annotated[
