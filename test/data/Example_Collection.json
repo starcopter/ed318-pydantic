@@ -129,7 +129,7 @@
                         "name": [
                             {
                                 "text": "LFPG-UASZoneManager",
-                                "lang": "en-us"
+                                "lang": "en-US"
                             }
                         ],
                         "email": "UASZoneManager@lfpg.fr",
@@ -147,7 +147,7 @@
                     50.122901
                 ],
                 "extent": {
-                    "subType": "Circles",
+                    "subType": "Circle",
                     "radius": 3500
                 },
                 "layer": {
@@ -188,7 +188,7 @@
                         "name": [
                             {
                                 "text": "LFPG-UASZoneManager",
-                                "lang": "en-us"
+                                "lang": "en-US"
                             }
                         ],
                         "email": "UASZoneManager@lfpg.fr",
