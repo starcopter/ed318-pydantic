@@ -1,7 +1,29 @@
 [project]
-name = "ed-318-converter"
+name = "ed-318"
 version = "0.1.0"
 description = "ED-318 Converter"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "email-validator>=2.2.0",
+    "geojson-pydantic>=1.2.0",
+    "pydantic>=2.10.6",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "rich>=13.9.4",
+    "ruff>=0.11.0",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
