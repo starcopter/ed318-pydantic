@@ -1,0 +1,7 @@
+[project]
+name = "ed-318-converter"
+version = "0.1.0"
+description = "ED-318 Converter"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
