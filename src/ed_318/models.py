@@ -15,8 +15,10 @@ from .types import (
     CodeZoneReasonType,
     CodeZoneType,
     CodeZoneVariantType,
+    DateTimeType,
     TextLongType,
     TextShortType,
+    TimeInterval,
     URNType,
 )
 
@@ -62,6 +64,17 @@ class Authority(BaseModel):
     phone: TextShortType | None = None
 
 
+class Metadata(BaseModel):
+    """ED-318 4.2.4.6 Metadata
+
+    Information that qualifies and provides traceability for the Zone operational data.
+    """
+
+    creationDateTime: DateTimeType | None = None
+    updateDateTime: DateTimeType | None = None
+    originator: str | None = None
+
+
 class UASZoneVersion(BaseModel):
     """
     A specific version of an airspace of defined dimensions, above the land areas or territorial
@@ -82,6 +95,7 @@ class UASZoneVersion(BaseModel):
     zoneAuthority: Annotated[list[Authority], Field(min_length=1)]
     limitedApplicability: list[TimePeriod] | None = None
     extendedProperties: dict[str, Any] | None = None
+    dataSource: Metadata | None = None
 
 
 class Feature(geojson.Feature):
