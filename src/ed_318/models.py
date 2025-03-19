@@ -1,8 +1,7 @@
-from datetime import datetime, time
 from typing import Annotated, Any
 
 import geojson_pydantic as geojson
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, BeforeValidator, Field, model_validator
 
 from .geometries import Geometry
 from .types import (
@@ -15,36 +14,62 @@ from .types import (
     CodeZoneReasonType,
     CodeZoneType,
     CodeZoneVariantType,
+    ConditionExpressionType,
     DateTimeType,
     TextLongType,
     TextShortType,
     TimeInterval,
+    TimeType,
     URNType,
 )
+from .util import CoercedList, CoercedOptional, convert_to_list
 
 
 class DailyPeriod(BaseModel):
-    day: Annotated[list[CodeWeekdayType], Field(min_length=1, max_length=7)]
-    startTime: time | None = None
-    startEvent: CodeDaylightEventType | None = None
-    endTime: time | None = None
-    endEvent: CodeDaylightEventType | None = None
+    """ED-318 4.2.4.4 DailyPeriod
+
+    Daily applicability schedule of the zone.
+    """
+
+    day: Annotated[list[CodeWeekdayType], Field(min_length=1, max_length=7), BeforeValidator(convert_to_list)]
+    startTime: CoercedOptional[TimeType] = None
+    startEvent: CoercedOptional[CodeDaylightEventType] = None
+    endTime: CoercedOptional[TimeType] = None
+    endEvent: CoercedOptional[CodeDaylightEventType] = None
+
+    @model_validator(mode="after")
+    def validate_times(self):
+        if self.startTime and self.startEvent:
+            raise ValueError("startTime and startEvent cannot be present simultaneously")
+        if self.endTime and self.endEvent:
+            raise ValueError("endTime and endEvent cannot be present simultaneously")
+        return self
 
 
 class TimePeriod(BaseModel):
-    startDateTime: datetime | None = None
-    endDateTime: datetime | None = None
-    schedule: list[DailyPeriod] | None = None
+    """ED-318 4.2.4.3 TimePeriod
+
+    Date and time period of applicability of the zone, including an eventual daily/weekly schedule.
+    """
+
+    startDateTime: CoercedOptional[DateTimeType] = None
+    endDateTime: CoercedOptional[DateTimeType] = None
+    schedule: CoercedOptional[list[DailyPeriod]] = None
 
 
 class DatasetMetadata(BaseModel):
-    provider: list[TextShortType] | None = None
-    issued: datetime | None = None
-    validFrom: datetime | None = None
-    description: list[TextShortType] | None = None
-    validTo: datetime | None = None
-    otherGeoid: URNType | None = None
-    technicalLimitation: list[TextShortType] | None = None
+    """ED-318 4.2.4.1 DatasetMetadata
+
+    Global information that qualifies and constrains the usage of the data in the associated data set.
+    """
+
+    provider: CoercedOptional[CoercedList[TextShortType]] = None
+    issued: CoercedOptional[DateTimeType] = None
+    validFrom: CoercedOptional[DateTimeType] = None
+    validTo: CoercedOptional[DateTimeType] = None
+    description: CoercedOptional[CoercedList[TextShortType]] = None
+    otherGeoid: CoercedOptional[URNType] = None
+    technicalLimitation: CoercedOptional[CoercedList[TextShortType]] = None
 
 
 class Authority(BaseModel):
@@ -55,13 +80,13 @@ class Authority(BaseModel):
     """
 
     purpose: CodeAuthorityRole
-    intervalBefore: TimeInterval | None = None
-    name: Annotated[list[TextShortType], Field(min_length=1)] | None = None
-    service: Annotated[list[TextShortType], Field(min_length=1)] | None = None
-    contactName: Annotated[list[TextShortType], Field(min_length=1)] | None = None
-    siteURL: TextShortType | None = None
-    email: TextShortType | None = None
-    phone: TextShortType | None = None
+    intervalBefore: CoercedOptional[TimeInterval] = None
+    name: CoercedOptional[CoercedList[TextShortType]] = None
+    service: CoercedOptional[CoercedList[TextShortType]] = None
+    contactName: CoercedOptional[CoercedList[TextShortType]] = None
+    siteURL: CoercedOptional[TextShortType] = None
+    email: CoercedOptional[TextShortType] = None
+    phone: CoercedOptional[TextShortType] = None
 
 
 class Metadata(BaseModel):
@@ -70,37 +95,40 @@ class Metadata(BaseModel):
     Information that qualifies and provides traceability for the Zone operational data.
     """
 
-    creationDateTime: DateTimeType | None = None
-    updateDateTime: DateTimeType | None = None
-    originator: str | None = None
+    creationDateTime: CoercedOptional[DateTimeType] = None
+    updateDateTime: CoercedOptional[DateTimeType] = None
+    originator: CoercedOptional[str] = None
 
 
-class UASZoneVersion(BaseModel):
-    """
+class UASZone(BaseModel):
+    """ED-318 4.2.2.2 UASZone
+
     A specific version of an airspace of defined dimensions, above the land areas or territorial
     waters of a State, within which a particular restriction or condition for UAS flights applies.
     """
 
     identifier: CodeZoneIdentifierType
     country: CodeCountryISOType
-    name: Annotated[list[TextShortType], Field(min_length=1)] | None = None
+    name: CoercedOptional[CoercedList[TextShortType]] = None
     type: CodeZoneType
     variant: CodeZoneVariantType
-    restrictionConditions: str | None = None
-    region: int | None = None
-    reason: Annotated[list[CodeZoneReasonType], Field(max_length=9)] | None = None
-    otherReasonInfo: list[TextShortType] | None = None
-    regulationExemption: CodeYesNoType | None = None
-    message: Annotated[list[TextLongType], Field(min_length=1)] | None = None
-    zoneAuthority: Annotated[list[Authority], Field(min_length=1)]
-    limitedApplicability: list[TimePeriod] | None = None
-    extendedProperties: dict[str, Any] | None = None
-    dataSource: Metadata | None = None
+    restrictionConditions: CoercedOptional[ConditionExpressionType] = None
+    region: CoercedOptional[Annotated[int, Field(ge=0, le=65535)]] = None
+    reasons: CoercedOptional[
+        Annotated[list[CodeZoneReasonType], Field(max_length=9), BeforeValidator(convert_to_list)]
+    ] = None
+    otherReasonInfo: CoercedOptional[CoercedList[TextShortType]] = None
+    regulationExemption: CoercedOptional[CodeYesNoType] = None
+    message: CoercedOptional[CoercedList[TextLongType]] = None
+    extendedProperties: CoercedOptional[dict[str, Any]] = None
+    limitedApplicability: CoercedOptional[CoercedList[TimePeriod]] = None
+    zoneAuthority: CoercedList[Authority]
+    dataSource: CoercedOptional[Metadata] = None
 
 
 class Feature(geojson.Feature):
     geometry: Geometry
-    properties: UASZoneVersion | None = None
+    properties: UASZone | None = None
 
 
 class FeatureCollection(geojson.FeatureCollection[Feature]):
