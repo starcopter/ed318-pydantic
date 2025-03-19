@@ -1,6 +1,7 @@
-from pydantic import BaseModel
+import pytest
+from pydantic import BaseModel, ValidationError
 
-from ed_318.types import TextLongType, TextShortType
+from ed_318.types import CodeYesNoType, TextLongType, TextShortType
 
 
 def test_text_short_type_from_str():
@@ -32,3 +33,17 @@ def test_text_type_in_model():
         text_short=TextShortType(text="Hello, world!"),
         text_long=TextLongType(text="Very long text"),
     )
+
+
+def test_code_yes_no_type_from_str():
+    class MyModel(BaseModel):
+        yes_no: CodeYesNoType
+
+    assert MyModel.model_validate({"yes_no": "YES"}) == MyModel(yes_no="YES")
+    assert MyModel.model_validate_json('{"yes_no": "NO"}') == MyModel(yes_no="NO")
+
+    assert MyModel.model_validate({"yes_no": "yes"}) == MyModel(yes_no="YES")
+    assert MyModel.model_validate_json('{"yes_no": "No"}') == MyModel(yes_no="NO")
+
+    with pytest.raises(ValidationError):
+        MyModel.model_validate({"yes_no": "maybe"})

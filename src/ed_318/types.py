@@ -6,7 +6,7 @@ from abc import ABC
 from datetime import datetime, time, timedelta
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, BeforeValidator, Field, model_validator
 
 CodeAuthorityRole = Annotated[
     Literal["AUTHORIZATION", "NOTIFICATION", "INFORMATION"],
@@ -202,7 +202,12 @@ TimeType = Annotated[time, Field(description="Time, optionally with time zone.")
 Time, optionally with time zone.
 """
 
-CodeYesNoType = Annotated[Literal["YES", "NO"], Field(description="A boolean value.")]
+def to_uppercase(value: str | Any) -> str | Any:
+    if isinstance(value, str):
+        return value.upper()
+    return value
+
+CodeYesNoType = Annotated[Literal["YES", "NO"], Field(description="A boolean value."), BeforeValidator(to_uppercase)]
 """ED-318 4.2.5.16 CodeYesNoType
 
 Allowed Values:
