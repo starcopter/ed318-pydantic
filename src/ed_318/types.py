@@ -2,7 +2,6 @@
 ED-318 4.2.5 Simple Data Models
 """
 
-import re
 from datetime import datetime, time, timedelta
 from typing import Annotated, Literal
 
@@ -15,8 +14,8 @@ CodeAuthorityRole = Annotated[
 """ED-318 4.2.5.1 CodeAuthorityRole
 
 Allowed Values:
-- AUTHORIZATION: The designated authority shall be contacted to get an authorization before accessing the UAS Geographical Zone.
-- NOTIFICATION: The designated authority shall be notified of the UAS flight prior to accessing the UAS Geographical Zone.
+- AUTHORIZATION: The authority shall be contacted to get an authorization before accessing the UAS Geographical Zone.
+- NOTIFICATION: The authority shall be notified of the UAS flight prior to accessing the UAS Geographical Zone.
 - INFORMATION: The designated authority is a general purpose point of contact for the UAS in the Zone.
 """
 
@@ -128,7 +127,7 @@ Allowed Values:
 """
 
 
-_LanguageCode = Annotated[str, Field(max_length=5, pattern=re.compile(r"^[a-z]{2}-[A-Z]{2}$", re.IGNORECASE))]
+_LanguageCode = Annotated[str, Field(max_length=5, pattern=r"(?i)^[a-z]{2}-[A-Z]{2}$")]
 """ISO3166 combined with ISO639-1 (2-letter country code + 2-letter language code)."""
 
 
@@ -182,22 +181,18 @@ A date and time instant, represented as a string in the format specified by RFC 
 Examples:
 - 1990-12-31T15:30:00.00Z
 - 1990-12-31T15:30:00.00-08:00 (offset of -8 hours from UTC)
-
-Note: Although ISO 8601 permits the hour to be "24", RFC 3339 only allows values between "00" and "23" in order to reduce confusion.
 """
 
 TimeInterval = Annotated[timedelta, Field(description="A time interval.")]
 """ED-318 4.2.5.14 TimeInterval
 
 A time interval.
-TODO: format using ISO 8601 PnnDTnnHnnM format.
 """
 
-TimeType = Annotated[time, Field(description="Time with time zone.")]
+TimeType = Annotated[time, Field(description="Time, optionally with time zone.")]
 """ED-318 4.2.5.15 TimeType
 
-Time with time zone.
-TODO: format using ISO 8601 Tnn:nn:nn(Z|+nn:nn) format.
+Time, optionally with time zone.
 """
 
 CodeYesNoType = Annotated[Literal["YES", "NO"], Field(description="A boolean value.")]
@@ -208,7 +203,7 @@ Allowed Values:
 - NO: False.
 """
 
-URNType = Annotated[str, Field(pattern=re.compile(r"^urn:.+:.*$", re.IGNORECASE))]
+URNType = Annotated[str, Field(pattern=r"(?i)^urn:.+:.*$")]
 """ED-318 4.2.5.17 URNType
 
 Must comply with the URN syntax defined in RFC 2141.
