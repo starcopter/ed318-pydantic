@@ -2,10 +2,11 @@
 ED-318 4.2.5 Simple Data Models
 """
 
+from abc import ABC
 from datetime import datetime, time, timedelta
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 CodeAuthorityRole = Annotated[
     Literal["AUTHORIZATION", "NOTIFICATION", "INFORMATION"],
@@ -127,11 +128,19 @@ Allowed Values:
 """
 
 
-_LanguageCode = Annotated[str, Field(max_length=5, pattern=r"(?i)^[a-z]{2}-[A-Z]{2}$")]
-"""ISO3166 combined with ISO639-1 (2-letter country code + 2-letter language code)."""
+class _TextType(BaseModel, ABC):
+    text: str
+    lang: Annotated[str, Field(max_length=5, pattern=r"(?i)^[a-z]{2}-[A-Z]{2}$")] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def coerce_str(cls, data: Any):
+        if isinstance(data, str):
+            return {"text": data}
+        return data
 
 
-class TextShortType(BaseModel):
+class TextShortType(_TextType):
     """ED-318 4.2.5.10 TextShortType
 
     A free text with a maximum length of 200 characters, optionally accompanied
@@ -139,10 +148,9 @@ class TextShortType(BaseModel):
     """
 
     text: Annotated[str, Field(max_length=200)]
-    lang: _LanguageCode | None = None
 
 
-class TextLongType(BaseModel):
+class TextLongType(_TextType):
     """ED-318 4.2.5.11 TextLongType
 
     A free text with a maximum length of 1000 characters, optionally accompanied
@@ -150,7 +158,6 @@ class TextLongType(BaseModel):
     """
 
     text: Annotated[str, Field(max_length=1_000)]
-    lang: _LanguageCode | None = None
 
 
 CodeWeekdayType = Annotated[

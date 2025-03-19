@@ -2,7 +2,7 @@ from datetime import datetime, time
 from typing import Annotated, Any
 
 import geojson_pydantic as geojson
-from pydantic import AnyUrl, BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 from .geometries import Geometry
 from .types import (
@@ -46,19 +46,20 @@ class DatasetMetadata(BaseModel):
 
 
 class Authority(BaseModel):
-    """
+    """ED-318 4.2.4.5 Authority
+
     A relevant authority that is in charge for authorizing, being notified or providing information for
     UAS operations in the UAS Geographical Zone.
     """
 
+    purpose: CodeAuthorityRole
+    intervalBefore: TimeInterval | None = None
     name: Annotated[list[TextShortType], Field(min_length=1)] | None = None
     service: Annotated[list[TextShortType], Field(min_length=1)] | None = None
     contactName: Annotated[list[TextShortType], Field(min_length=1)] | None = None
-    siteURL: AnyUrl | None = None
-    email: EmailStr | None = None
-    phone: Annotated[str, Field(max_length=200)] | None = None
-    purpose: CodeAuthorityRole
-    intervalBefore: TimePeriod | None = None
+    siteURL: TextShortType | None = None
+    email: TextShortType | None = None
+    phone: TextShortType | None = None
 
 
 class UASZoneVersion(BaseModel):

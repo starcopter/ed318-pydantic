@@ -5,7 +5,6 @@ description = "ED-318 Converter"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "email-validator>=2.2.0",
     "geojson-pydantic>=1.2.0",
     "pydantic>=2.10.6",
 ]
