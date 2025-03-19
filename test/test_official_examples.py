@@ -14,12 +14,6 @@ def test_parse_feature_collection(path: Path):
     assert isinstance(collection, FeatureCollection)
 
 
-def test_parse_ALTER_feature_collection():
-    path = data_path / "UGZ_ED-318.json"
-    collection = FeatureCollection.model_validate_json(path.read_text())
-    assert isinstance(collection, FeatureCollection)
-
-
 def test_parse_invalid_feature_collection():
     path = data_path / "InvalidExample_GeoZone_2_Layers.json"
     with pytest.raises(ValidationError):

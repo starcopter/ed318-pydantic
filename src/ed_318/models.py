@@ -120,7 +120,9 @@ class UASZone(BaseModel):
     otherReasonInfo: CoercedOptional[CoercedList[TextShortType]] = None
     regulationExemption: CoercedOptional[CodeYesNoType] = None
     message: CoercedOptional[CoercedList[TextLongType]] = None
-    extendedProperties: CoercedOptional[dict[str, Any]] = None
+    extendedProperties: CoercedOptional[
+        Annotated[dict[str, Any], BeforeValidator(lambda v: v if isinstance(v, dict) else {"prop": v})]
+    ] = None
     limitedApplicability: CoercedOptional[CoercedList[TimePeriod]] = None
     zoneAuthority: CoercedList[Authority]
     dataSource: CoercedOptional[Metadata] = None
@@ -128,7 +130,28 @@ class UASZone(BaseModel):
 
 class Feature(geojson.Feature):
     geometry: Geometry
-    properties: UASZone | None = None
+    properties: UASZone
+
+    @model_validator(mode="before")
+    @classmethod
+    def parse_properties(cls, data: Any):
+        if not isinstance(data, dict) or "properties" not in data or "geometry" not in data:
+            return data
+
+        properties = data["properties"]
+        geometry = data["geometry"]
+        if not isinstance(properties, dict) or not isinstance(geometry, dict):
+            return data
+
+        if "UASZone" in properties:
+            uas_zone = properties.pop("UASZone")
+            properties.update(uas_zone)
+
+        if "verticalLayer" in properties:
+            layer = properties.pop("verticalLayer")
+            geometry.setdefault("layer", layer)
+
+        return data
 
 
 class FeatureCollection(geojson.FeatureCollection[Feature]):
@@ -140,5 +163,5 @@ class FeatureCollection(geojson.FeatureCollection[Feature]):
 
     name: Annotated[str, Field(max_length=200)] | None = None
     """A free text name that can be used to identifiy the UAS Geographical Zone data set."""
-    metadata: DatasetMetadata
+    metadata: DatasetMetadata = {}
     """Qualification and constraint of the usage of the data in this data set."""

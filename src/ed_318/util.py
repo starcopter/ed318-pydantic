@@ -1,4 +1,4 @@
-from typing import Annotated, TypeVar
+from typing import Annotated, Any, TypeVar
 
 from pydantic import BeforeValidator, Field
 
@@ -27,6 +27,14 @@ def empty_str_to_none(value: T) -> T | None:
     if value == "":
         return None
     return value
+
+
+def get_list_depth(value: Any) -> int:
+    count = 0
+    while isinstance(value, list):
+        value = value[0]
+        count += 1
+    return count
 
 
 type Uppercase[T] = Annotated[T, BeforeValidator(to_uppercase)]
