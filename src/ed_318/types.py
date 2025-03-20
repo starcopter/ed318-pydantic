@@ -2,15 +2,15 @@
 ED-318 4.2.5 Simple Data Models
 """
 
+from abc import ABC
 from datetime import datetime, time, timedelta
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
-CodeAuthorityRole = Annotated[
-    Literal["AUTHORIZATION", "NOTIFICATION", "INFORMATION"],
-    Field(description="Role that an authority has in relation with the UAS zone."),
-]
+from .util import Lowercase, Uppercase
+
+CodeAuthorityRole = Uppercase[Literal["AUTHORIZATION", "NOTIFICATION", "INFORMATION"]]
 """ED-318 4.2.5.1 CodeAuthorityRole
 
 Allowed Values:
@@ -19,10 +19,7 @@ Allowed Values:
 - INFORMATION: The designated authority is a general purpose point of contact for the UAS in the Zone.
 """
 
-CodeDaylightEventType = Annotated[
-    Literal["BMCT", "SR", "SS", "EECT"],
-    Field(description="A time identified in relation with an astronomical event, such as sunrise/sunset."),
-]
+CodeDaylightEventType = Uppercase[Literal["BMCT", "SR", "SS", "EECT"]]
 """ED-318 4.2.5.2 CodeDaylightEventType
 
 Allowed Values:
@@ -32,7 +29,7 @@ Allowed Values:
 - EECT: End of evening civil twilight (center of the sun 6 degrees below the horizon).
 """
 
-UomDistance = Literal["m", "ft"]
+UomDistance = Lowercase[Literal["m", "ft"]]
 """ED-318 4.2.5.3 UomDistance
 
 Allowed Values:
@@ -40,34 +37,19 @@ Allowed Values:
 - ft: Feet.
 """
 
-CodeZoneIdentifierType = Annotated[
-    str,
-    Field(
-        min_length=1,
-        max_length=7,
-        pattern=r"[A-Za-z0-9_\-]{1,7}",
-        description="A string that uniquely identifies the area within a geographical scope.",
-    ),
-]
+CodeZoneIdentifierType = Annotated[str, Field(min_length=1, max_length=7, pattern=r"[A-Za-z0-9_\-]{1,7}")]
 """ED-318 4.2.5.4 CodeZoneIdentifierType
 
 A string that uniquely identifies the area within a geographical scope.
 """
 
-CodeCountryISOType = Annotated[
-    str,
-    Field(
-        min_length=3,
-        max_length=3,
-        description="A 3 letter identifier of a country or territory using the ISO 3166-1 alpha-3 standard.",
-    ),
-]
+CodeCountryISOType = Annotated[str, Field(min_length=3, max_length=3)]
 """ED-318 4.2.5.5 CodeCountryISOType
 
 A 3 letter identifier of a country or territory using the ISO 3166-1 alpha-3 standard.
 """
 
-CodeZoneVariantType = Literal["COMMON", "CUSTOMIZED"]
+CodeZoneVariantType = Uppercase[Literal["COMMON", "CUSTOMIZED"]]
 """ED-318 4.2.5.6 CodeZoneVariantType
 
 Allowed Values:
@@ -78,7 +60,7 @@ Allowed Values:
   identify it is not the common version which has been transferred.
 """
 
-CodeZoneType = Literal["USPACE", "PROHIBITED", "REQ_AUTHORIZATION", "CONDITIONAL", "NO_RESTRICTION"]
+CodeZoneType = Uppercase[Literal["USPACE", "PROHIBITED", "REQ_AUTHORIZATION", "CONDITIONAL", "NO_RESTRICTION"]]
 """ED-318 4.2.5.7 CodeZoneType
 
 Allowed Values:
@@ -91,14 +73,7 @@ Allowed Values:
 - NO_RESTRICTION: Indicates that the zone may be used during the applicability time without any restrictions.
 """
 
-ConditionExpressionType = Annotated[
-    str,
-    Field(
-        max_length=10_000,
-        description="Coded expression that provides information about what is authorized/forbidden in a zone "
-        "that has conditional access.",
-    ),
-]
+ConditionExpressionType = Annotated[str, Field(max_length=10_000)]
 """ED-318 4.2.5.8 ConditionExpressionType
 
 A coded expression that provides information about what is authorized/forbidden in a zone with conditional access.
@@ -106,9 +81,8 @@ By difference with the "Message" field per zone, this coded expression is made t
 while the "Message" field is to be interpreted by a human.
 """
 
-CodeZoneReasonType = Annotated[
-    Literal["AIR_TRAFFIC", "SENSITIVE", "PRIVACY", "POPULATION", "NATURE", "NOISE", "EMERGENCY", "DAR", "OTHER"],
-    Field(description="An indication of a reason that justifies the existence of an UAS Zone."),
+CodeZoneReasonType = Uppercase[
+    Literal["AIR_TRAFFIC", "SENSITIVE", "PRIVACY", "POPULATION", "NATURE", "NOISE", "EMERGENCY", "DAR", "OTHER"]
 ]
 """ED-318 4.2.5.9 CodeZoneReasonType
 
@@ -127,11 +101,19 @@ Allowed Values:
 """
 
 
-_LanguageCode = Annotated[str, Field(max_length=5, pattern=r"(?i)^[a-z]{2}-[A-Z]{2}$")]
-"""ISO3166 combined with ISO639-1 (2-letter country code + 2-letter language code)."""
+class _TextType(BaseModel, ABC):
+    text: str
+    lang: Annotated[str, Field(max_length=5, pattern=r"(?i)^[a-z]{2}-[A-Z]{2}$")] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def coerce_str(cls, data: Any):
+        if isinstance(data, str):
+            return {"text": data}
+        return data
 
 
-class TextShortType(BaseModel):
+class TextShortType(_TextType):
     """ED-318 4.2.5.10 TextShortType
 
     A free text with a maximum length of 200 characters, optionally accompanied
@@ -139,10 +121,9 @@ class TextShortType(BaseModel):
     """
 
     text: Annotated[str, Field(max_length=200)]
-    lang: _LanguageCode | None = None
 
 
-class TextLongType(BaseModel):
+class TextLongType(_TextType):
     """ED-318 4.2.5.11 TextLongType
 
     A free text with a maximum length of 1000 characters, optionally accompanied
@@ -150,13 +131,9 @@ class TextLongType(BaseModel):
     """
 
     text: Annotated[str, Field(max_length=1_000)]
-    lang: _LanguageCode | None = None
 
 
-CodeWeekdayType = Annotated[
-    Literal["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN", "ANY"],
-    Field(description="A day of the week."),
-]
+CodeWeekdayType = Uppercase[Literal["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN", "ANY"]]
 """ED-318 4.2.5.12 CodeWeekdayType
 
 Allowed Values:
@@ -170,10 +147,7 @@ Allowed Values:
 - ANY: Any day of the week.
 """
 
-DateTimeType = Annotated[
-    datetime,
-    Field(description="A date and time instant, represented as a string in the format specified by RFC 3339."),
-]
+DateTimeType = datetime
 """ED-318 4.2.5.13 DateTimeType
 
 A date and time instant, represented as a string in the format specified by RFC 3339.
@@ -183,19 +157,19 @@ Examples:
 - 1990-12-31T15:30:00.00-08:00 (offset of -8 hours from UTC)
 """
 
-TimeInterval = Annotated[timedelta, Field(description="A time interval.")]
+TimeInterval = timedelta
 """ED-318 4.2.5.14 TimeInterval
 
 A time interval.
 """
 
-TimeType = Annotated[time, Field(description="Time, optionally with time zone.")]
+TimeType = time
 """ED-318 4.2.5.15 TimeType
 
 Time, optionally with time zone.
 """
 
-CodeYesNoType = Annotated[Literal["YES", "NO"], Field(description="A boolean value.")]
+CodeYesNoType = Uppercase[Literal["YES", "NO"]]
 """ED-318 4.2.5.16 CodeYesNoType
 
 Allowed Values:

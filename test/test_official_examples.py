@@ -3,19 +3,13 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from ed_318.models import Authority, Feature, FeatureCollection, TimePeriod, UASZoneVersion
+from ed_318.models import Authority, Feature, FeatureCollection, TimePeriod, UASZone
 
 data_path = Path("test/data")
 
 
 @pytest.mark.parametrize("path", data_path.glob("Example_*.json"))
 def test_parse_feature_collection(path: Path):
-    collection = FeatureCollection.model_validate_json(path.read_text())
-    assert isinstance(collection, FeatureCollection)
-
-
-def test_parse_ALTER_feature_collection():
-    path = data_path / "UGZ_ED-318.json"
     collection = FeatureCollection.model_validate_json(path.read_text())
     assert isinstance(collection, FeatureCollection)
 
@@ -34,8 +28,8 @@ def test_parse_feature():
 
 def test_parse_uas_zone_properties():
     path = data_path / "PartialExample_GeoZoneProperties.json"
-    properties = UASZoneVersion.model_validate_json(path.read_text())
-    assert isinstance(properties, UASZoneVersion)
+    properties = UASZone.model_validate_json(path.read_text())
+    assert isinstance(properties, UASZone)
 
 
 def test_parse_time_period():

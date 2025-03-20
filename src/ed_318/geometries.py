@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal, Union
+from typing import Annotated, ClassVar, Literal, TypeVar, Union
 
 import geojson_pydantic as geojson
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from .types import UomDistance
+from .util import Uppercase, get_list_depth
 
-CodeVerticalReferenceType = Literal["AGL", "AMSL", "WGS84"]
+T = TypeVar("T")
+
+CodeVerticalReferenceType = Uppercase[Literal["AGL", "AMSL", "WGS84"]]
 """ED-318 4.2.3.3 CodeVerticalReferenceType
 
 Allowed Values:
@@ -49,32 +52,59 @@ class VerticalLayer(BaseModel):
     """The unit of measurement in which the upper and lower values are expressed (m) or (ft)."""
 
 
-class _LayeredGeometryMixin(BaseModel):
+class _ED318GeometryMixin(BaseModel):
     layer: VerticalLayer
+    _expected_coordinate_list_depth: ClassVar[int]
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_coordinates(cls, data: T) -> T:
+        if not isinstance(data, dict) or "coordinates" not in data:
+            return data
+
+        list_depth = get_list_depth(data["coordinates"])
+        if list_depth != cls._expected_coordinate_list_depth:
+            possible_types = {name for name, depth in coordinate_depth_map.items() if depth == list_depth}
+            raise ValueError(
+                f"a {cls.__name__} is expected to have a coordinate array "
+                f"with {cls._expected_coordinate_list_depth} levels of depth, "
+                f"got {list_depth} levels instead. "
+                f"Possible types: {possible_types}"
+            )
+
+        return data
 
 
-class Point(geojson.Point, _LayeredGeometryMixin):
+class Point(geojson.Point, _ED318GeometryMixin):
     extent: HorizontalExtent | None = None
+    _expected_coordinate_list_depth = 1
 
 
-class MultiPoint(geojson.MultiPoint, _LayeredGeometryMixin):
-    pass
+class MultiPoint(geojson.MultiPoint, _ED318GeometryMixin):
+    _expected_coordinate_list_depth = 2
 
 
-class LineString(geojson.LineString, _LayeredGeometryMixin):
-    pass
+class LineString(geojson.LineString, _ED318GeometryMixin):
+    _expected_coordinate_list_depth = 2
 
 
-class MultiLineString(geojson.MultiLineString, _LayeredGeometryMixin):
-    pass
+class MultiLineString(geojson.MultiLineString, _ED318GeometryMixin):
+    _expected_coordinate_list_depth = 3
 
 
-class Polygon(geojson.Polygon, _LayeredGeometryMixin):
-    pass
+class Polygon(geojson.Polygon, _ED318GeometryMixin):
+    _expected_coordinate_list_depth = 3
 
 
-class MultiPolygon(geojson.MultiPolygon, _LayeredGeometryMixin):
-    pass
+class MultiPolygon(geojson.MultiPolygon, _ED318GeometryMixin):
+    _expected_coordinate_list_depth = 4
+
+
+coordinate_depth_map = {
+    cls.__name__: cls._expected_coordinate_list_depth
+    for cls in _ED318GeometryMixin.__subclasses__()
+    if hasattr(cls, "_expected_coordinate_list_depth")
+}
 
 
 class GeometryCollection(geojson.GeometryCollection):
