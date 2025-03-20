@@ -1,4 +1,4 @@
-from ed_318.util import get_list_depth
+from ed318_pydantic.util import get_list_depth
 
 
 def test_get_list_depth():
