@@ -7,6 +7,6 @@
 ## Description
 
 `ed318-pydantic` provides a suite of Pydantic models matching the data model specified in
-[ED-318 Technical Specification fro Geographical Zones][ED-318].
+[ED-318 Technical Specification fro Geographical Zones][ed-318].
 
-[ED-318]: https://eshop.eurocae.net/eurocae-documents-and-reports/ed-318/
+[ed-318]: https://eshop.eurocae.net/eurocae-documents-and-reports/ed-318/
