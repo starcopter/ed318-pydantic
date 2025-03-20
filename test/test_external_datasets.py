@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from ed_318.models import Feature, FeatureCollection
+from ed318_pydantic.models import Feature, FeatureCollection
 
 data_path = Path("test/data")
 

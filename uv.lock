@@ -20,7 +20,7 @@ wheels = [
 ]
 
 [[package]]
-name = "ed-318"
+name = "ed318-pydantic"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

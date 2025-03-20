@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from ed_318.models import Authority, Feature, FeatureCollection, TimePeriod, UASZone
+from ed318_pydantic.models import Authority, Feature, FeatureCollection, TimePeriod, UASZone
 
 data_path = Path("test/data")
 

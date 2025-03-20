@@ -1,7 +1,7 @@
 import pytest
 from pydantic import BaseModel, ValidationError
 
-from ed_318.types import CodeYesNoType, TextLongType, TextShortType
+from ed318_pydantic.types import CodeYesNoType, TextLongType, TextShortType
 
 
 def test_text_short_type_from_str():
