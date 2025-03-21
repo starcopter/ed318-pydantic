@@ -1,0 +1,27 @@
+name: Latest Changes
+
+on:
+  pull_request_target:
+    branches:
+      - main
+    types:
+      - closed
+  workflow_dispatch:
+    inputs:
+      number:
+        description: PR number
+        required: true
+
+jobs:
+  latest-changes:
+    name: Update Latest Changes in Changelog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: tiangolo/latest-changes@0.3.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          latest_changes_file: CHANGELOG.md
+          latest_changes_header: '# Release Notes'
+          end_regex: '^## '
+          label_header_prefix: '### '
