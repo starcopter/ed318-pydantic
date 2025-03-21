@@ -22,6 +22,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           latest_changes_file: CHANGELOG.md
-          latest_changes_header: '# Release Notes'
+          latest_changes_header: '## Latest Changes'
           end_regex: '^## '
           label_header_prefix: '### '

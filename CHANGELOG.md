@@ -1,12 +1,15 @@
 # Release Notes
+<!-- markdownlint-disable MD013 -->
+
+## Latest Changes
 
 ### Features
 
-* ✨ Translate Authorisation to Authorization. PR [#5](https://github.com/starcopter/ed318-pydantic/pull/5) by [@Finwood](https://github.com/Finwood).
+* ✨ Automatically translate "AUTHORI**S**ATION" to "AUTHORI**Z**ATION" in `CodeAuthorityRole` and `ZodeZoneType`. PR [#5](https://github.com/starcopter/ed318-pydantic/pull/5) by [@Finwood](https://github.com/Finwood).
 
 ### Internal
 
-* 👷 Automate Changelog Generation. PR [#4](https://github.com/starcopter/ed318-pydantic/pull/4) by [@Finwood](https://github.com/Finwood).
+* 👷 Automate changelog generation. PR [#4](https://github.com/starcopter/ed318-pydantic/pull/4) by [@Finwood](https://github.com/Finwood).
 
 ## 0.1.0
 
