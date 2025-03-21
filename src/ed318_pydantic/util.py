@@ -37,7 +37,14 @@ def get_list_depth(value: Any) -> int:
     return count
 
 
+def translate_authorisation(value: T) -> T:
+    if not isinstance(value, str):
+        return value
+    return value.replace("AUTHORISATION", "AUTHORIZATION")
+
+
 type Uppercase[T] = Annotated[T, BeforeValidator(to_uppercase)]
 type Lowercase[T] = Annotated[T, BeforeValidator(to_lowercase)]
+type Translated[T] = Annotated[T, BeforeValidator(translate_authorisation)]
 type CoercedOptional[T] = Annotated[T | None, BeforeValidator(empty_str_to_none)]
 type CoercedList[T] = Annotated[list[T], Field(min_length=1), BeforeValidator(convert_to_list)]

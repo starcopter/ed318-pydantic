@@ -1,7 +1,7 @@
 import pytest
 from pydantic import BaseModel, ValidationError
 
-from ed318_pydantic.types import CodeYesNoType, TextLongType, TextShortType
+from ed318_pydantic.types import CodeAuthorityRole, CodeYesNoType, CodeZoneType, TextLongType, TextShortType
 
 
 def test_text_short_type_from_str():
@@ -47,3 +47,28 @@ def test_code_yes_no_type_from_str():
 
     with pytest.raises(ValidationError):
         MyModel.model_validate({"yes_no": "maybe"})
+
+
+def test_code_zone_type():
+    class MyModel(BaseModel):
+        zone: CodeZoneType
+
+    assert MyModel(zone="USPACE").zone == "USPACE"
+    assert MyModel(zone="Uspace").zone == "USPACE"
+    assert MyModel(zone="uspACe").zone == "USPACE"
+
+    with pytest.raises(ValidationError):
+        MyModel(zone="unknown")
+
+    assert MyModel(zone="REQ_AUTHORIZATION").zone == "REQ_AUTHORIZATION"
+    assert MyModel(zone="REQ_AUTHORISATION").zone == "REQ_AUTHORIZATION", "translation does not work"
+    assert MyModel(zone="req_authorisation").zone == "REQ_AUTHORIZATION", "lowercase translation does not work"
+
+
+def test_authority_role():
+    class MyModel(BaseModel):
+        authority: CodeAuthorityRole
+
+    assert MyModel(authority="AUTHORIZATION").authority == "AUTHORIZATION"
+    assert MyModel(authority="AUTHORISATION").authority == "AUTHORIZATION", "translation does not work"
+    assert MyModel(authority="authorisation").authority == "AUTHORIZATION", "lowercase translation does not work"

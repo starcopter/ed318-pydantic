@@ -8,9 +8,9 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
-from .util import Lowercase, Uppercase
+from .util import Lowercase, Translated, Uppercase
 
-CodeAuthorityRole = Uppercase[Literal["AUTHORIZATION", "NOTIFICATION", "INFORMATION"]]
+CodeAuthorityRole = Uppercase[Translated[Literal["AUTHORIZATION", "NOTIFICATION", "INFORMATION"]]]
 """ED-318 4.2.5.1 CodeAuthorityRole
 
 Allowed Values:
@@ -60,7 +60,9 @@ Allowed Values:
   identify it is not the common version which has been transferred.
 """
 
-CodeZoneType = Uppercase[Literal["USPACE", "PROHIBITED", "REQ_AUTHORIZATION", "CONDITIONAL", "NO_RESTRICTION"]]
+CodeZoneType = Uppercase[
+    Translated[Literal["USPACE", "PROHIBITED", "REQ_AUTHORIZATION", "CONDITIONAL", "NO_RESTRICTION"]]
+]
 """ED-318 4.2.5.7 CodeZoneType
 
 Allowed Values:
