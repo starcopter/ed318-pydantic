@@ -14,6 +14,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "bump-my-version>=1.1.1",
     "pre-commit>=4.2.0",
     "pytest>=8.3.5",
     "ruff>=0.11.0",
@@ -30,6 +31,28 @@ extend-select = ["I"]
 filterwarnings = [
     "ignore:GeometryCollection should not be used for homogeneous collections:UserWarning:geojson_pydantic.geometries",
 ]
+
+[tool.bumpversion]
+current_version = "0.2.0"
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
+serialize = ["{major}.{minor}.{patch}"]
+search = "{current_version}"
+replace = "{new_version}"
+regex = false
+ignore_missing_version = false
+ignore_missing_files = false
+tag = false
+sign_tags = false
+tag_name = "v{new_version}"
+tag_message = "Bump version: {current_version} → {new_version}"
+allow_dirty = true
+commit = false
+message = "Bump version: {current_version} → {new_version}"
+moveable_tags = []
+commit_args = ""
+setup_hooks = []
+pre_commit_hooks = []
+post_commit_hooks = []
 
 [build-system]
 requires = ["hatchling"]
