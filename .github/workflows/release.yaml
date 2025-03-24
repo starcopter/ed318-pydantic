@@ -3,27 +3,160 @@ name: Release
 on:
   push:
     tags:
-      # Publish on any tag starting with a `v`, e.g. v1.2.3
       - v*
+  workflow_dispatch:
+    inputs:
+      version: # TODO: remove, replace with version-bump input
+        description: "The version you want to release"
+        required: true
 
 jobs:
-  pypi:
-    name: Publish to PyPI
+  prepare:
+    name: Prepare Release
     runs-on: ubuntu-latest
-    # Environment and permissions trusted publishing.
-    environment:
-      # Create this environment in the GitHub repository under Settings -> Environments
-      name: release
-    permissions:
-      contents: read
-      id-token: write
+    outputs:
+      tag: v${{ steps.semver.outputs.version }}
+      release-notes: ${{ steps.changelog.outputs.release-notes }}
+      prerelease: ${{ steps.semver.outputs.prerelease }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
-      - run: uv build
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch history for all branches and tags
+
+      # In order to make a commit, we need to initialize a user.
+      - name: Create Robot user
+        run: |
+          git config user.name "github-bot :robot:"
+          git config user.email noreply@github.com
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.8"
+          enable-cache: true
+
+      - name: Bump Version
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "::warning:: TODO: Bump version"
+
+      - name: Validate version input
+        id: semver
+        uses: matt-usurp/validate-semver@v2
+        with:
+          # TODO: 'inputs.version' needs to be replaced with the output of the version-bump step
+          version: >
+            ${{
+              (github.event_name == 'push' &&
+              github.event.created &&
+              github.ref_type == 'tag') &&
+              github.ref_name || inputs.version
+            }}
+
+      - name: Update Changelog
+        id: changelog
+        uses: thomaseizinger/keep-a-changelog-new-release@3.1.0
+        with:
+          tag: v${{ steps.semver.outputs.version }}
+
+      - name: Commit Changelog for Release
+        if: ${{ github.event_name != 'push' && steps.semver.outputs.prerelease == '' }}
+        run: git add CHANGELOG.md
+
+      - name: Reset Changelog for Prerelease
+        if: ${{ github.event_name == 'push' || steps.semver.outputs.prerelease != '' }}
+        run: git restore CHANGELOG.md
+
+      - name: Create tag and push
+        if: ${{ github.event_name != 'push' && steps.semver.outputs.prerelease == '' }}
+        run: |
+          git commit -m "Prepare release v${{ steps.semver.outputs.version }}"
+          git tag v${{ steps.semver.outputs.version }}
+          git push
+          git push origin v${{ steps.semver.outputs.version }}
+
+  build:
+    name: Build
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.8"
+          enable-cache: true
+
+      - name: Build Package
+        run: uv build
+
       # Check that basic features work and we didn't miss to include crucial files
       - name: Smoke test (wheel)
         run: uv run --isolated --no-project -p 3.13 --with dist/*.whl test/smoke_test.py
       - name: Smoke test (source distribution)
         run: uv run --isolated --no-project -p 3.13 --with dist/*.tar.gz test/smoke_test.py
-      - run: uv publish --trusted-publishing always
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: dist/
+          retention-days: 1
+
+  publish:
+    needs: [build, prepare]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: package
+          path: dist/
+
+      - run: ls -la dist
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          tag_name: ${{ needs.prepare.outputs.tag }}
+          body: ${{ needs.prepare.outputs.release-notes }}
+          prerelease: ${{ needs.prepare.outputs.prerelease != '' }}
+
+  pypi:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.8"
+          enable-cache: true
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: package
+          path: dist/
+
+      - run: ls -la dist
+
+      # - name: Publish to PyPI
+      #   run: uv publish --trusted-publishing always
