@@ -11,20 +11,26 @@ data_path = Path("test/data")
 @pytest.mark.parametrize(
     "filename",
     [
-        "ZGUAS_Aero.json",
-        "ZGUAS_Medioambiente.json",
-        "ZGUAS_Urbano.json",
-        "ZGUAS_Infra.json",
+        "ZGUAS_Aero.zip",
+        "ZGUAS_Medioambiente.zip",
+        "ZGUAS_Urbano.zip",
+        "ZGUAS_Infra.zip",
     ],
 )
 def test_parse_ENAIRE_dataset(tmp_path: Path, filename: str):
     import urllib.request
+    import zipfile
 
     url = f"https://aip.enaire.es/recursos/descargas/ZGUAS/{filename}"
-    json_file = tmp_path / filename
-    urllib.request.urlretrieve(url, json_file)
+    file = tmp_path / filename
+    urllib.request.urlretrieve(url, file)
+    with zipfile.ZipFile(file, "r") as zip_ref:
+        json_files = [f for f in zip_ref.namelist() if f.endswith(".json")]
+        if len(json_files) != 1:
+            raise ValueError(f"Expected 1 JSON file in {filename}, got {len(json_files)}: {json_files}")
+        content = zip_ref.read(json_files[0])
 
-    collection = FeatureCollection.model_validate_json(json_file.read_text())
+    collection = FeatureCollection.model_validate_json(content)
     assert isinstance(collection, FeatureCollection)
 
 
