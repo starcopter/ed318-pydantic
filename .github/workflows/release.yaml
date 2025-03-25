@@ -53,8 +53,8 @@ jobs:
           version: >
             ${{
               github.event_name == 'push' &&
-              github.event.push.created &&
-              github.event.push.ref_type == 'tag' &&
+              github.event.created &&
+              github.event.ref_type == 'tag' &&
               github.ref_name || inputs.version
             }}
 
