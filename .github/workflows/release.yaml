@@ -50,12 +50,13 @@ jobs:
         id: semver
         uses: matt-usurp/validate-semver@v2
         with:
+          # TODO: 'inputs.version' needs to be replaced with the output of the version-bump step
           version: >
             ${{
               (github.event_name == 'push' &&
               github.event.created &&
               github.ref_type == 'tag') &&
-              github.ref_name || 'v0.2.1-dev.99'
+              github.ref_name || inputs.version
             }}
 
       - name: Update Changelog
