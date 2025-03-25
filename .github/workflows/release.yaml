@@ -9,6 +9,8 @@ on:
       version: # TODO: remove, replace with version-bump input
         description: "The version you want to release"
         required: true
+  pull_request:
+    types: [opened, reopened, synchronize]
 
 jobs:
   prepare:
@@ -19,6 +21,11 @@ jobs:
       release-notes: ${{ steps.changelog.outputs.release-notes }}
       prerelease: ${{ steps.semver.outputs.prerelease }}
     steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
