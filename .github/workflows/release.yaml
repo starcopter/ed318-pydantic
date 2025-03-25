@@ -112,6 +112,7 @@ jobs:
           retention-days: 1
 
   publish:
+    name: Release on GitHub
     needs: [build, prepare]
     runs-on: ubuntu-latest
     steps:
@@ -133,7 +134,8 @@ jobs:
 
   pypi:
     name: Publish to PyPI
-    needs: build
+    needs: [build, prepare]
+    if: ${{ !needs.prepare.outputs.prerelease }}
     runs-on: ubuntu-latest
     environment:
       name: release
