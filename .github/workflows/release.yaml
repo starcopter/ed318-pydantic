@@ -121,9 +121,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: package
+          path: dist/
 
       - run: ls -la
-      - run: test -d dist && ls -la dist || echo "dist/ is missing"
+      - run: ls -la dist
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -156,9 +157,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: package
+          path: dist/
 
       - run: ls -la
-      - run: test -d dist && ls -la dist || echo "dist/ is missing"
+      - run: ls -la dist
 
       # - name: Publish to PyPI
       #   run: uv publish --trusted-publishing always

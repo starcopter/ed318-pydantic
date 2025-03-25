@@ -3,6 +3,10 @@
 
 ## [Latest Changes]
 
+### Added
+
+* Automate release workflow. Also, this is an entry in the changelog.
+
 ## [0.2.0] - 2025-03-21
 
 ### Features
