@@ -53,8 +53,8 @@ jobs:
           version: >
             ${{
               (github.event_name == 'push' &&
-              github.event.created == true &&
-              github.event.ref_type == 'tag') &&
+              github.event.created &&
+              github.ref_type == 'tag') &&
               github.ref_name || 'v0.2.1-dev.99'
             }}
 
