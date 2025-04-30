@@ -1,6 +1,6 @@
 [project]
 name = "ed318-pydantic"
-version = "0.2.0"
+version = "0.2.1"
 description = "ED-318 Pydantic Models"
 readme = "README.md"
 authors = [
