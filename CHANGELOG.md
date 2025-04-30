@@ -3,6 +3,10 @@
 
 ## Latest Changes
 
+### Fixes
+
+* 🐛 Require at least one zoneAuthority entry for a UASZone. PR [#7](https://github.com/starcopter/ed318-pydantic/pull/7) by [@Finwood](https://github.com/Finwood).
+
 ## 0.2.0 - 2025-03-21
 
 ### Features
