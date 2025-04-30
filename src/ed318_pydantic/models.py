@@ -101,7 +101,7 @@ class Metadata(BaseModel):
 
 
 class UASZone(BaseModel):
-    """ED-318 4.2.2.2 UASZone
+    """ED-318 4.2.4.2 UASZone
 
     A specific version of an airspace of defined dimensions, above the land areas or territorial
     waters of a State, within which a particular restriction or condition for UAS flights applies.
@@ -124,7 +124,7 @@ class UASZone(BaseModel):
         Annotated[dict[str, Any], BeforeValidator(lambda v: v if isinstance(v, dict) else {"prop": v})]
     ] = None
     limitedApplicability: CoercedOptional[CoercedList[TimePeriod]] = None
-    zoneAuthority: CoercedList[Authority]
+    zoneAuthority: Annotated[list[Authority], Field(min_length=1)]
     dataSource: CoercedOptional[Metadata] = None
 
 
