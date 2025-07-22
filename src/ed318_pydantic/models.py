@@ -163,5 +163,5 @@ class FeatureCollection(geojson.FeatureCollection[Feature]):
 
     name: Annotated[str, Field(max_length=200)] | None = None
     """A free text name that can be used to identifiy the UAS Geographical Zone data set."""
-    metadata: DatasetMetadata = {}
+    metadata: DatasetMetadata = DatasetMetadata()
     """Qualification and constraint of the usage of the data in this data set."""

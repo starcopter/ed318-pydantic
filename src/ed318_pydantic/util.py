@@ -1,4 +1,4 @@
-from typing import Annotated, Any, TypeVar
+from typing import Annotated, Any, TypeVar, overload
 
 from pydantic import BeforeValidator, Field
 
@@ -37,10 +37,16 @@ def get_list_depth(value: Any) -> int:
     return count
 
 
-def translate_authorisation(value: T) -> T:
-    if not isinstance(value, str):
-        return value
-    return value.replace("AUTHORISATION", "AUTHORIZATION")
+@overload
+def translate_authorisation(value: str) -> str: ...
+@overload
+def translate_authorisation(value: T) -> T: ...
+
+
+def translate_authorisation(value: Any) -> Any:
+    if isinstance(value, str):
+        return value.replace("AUTHORISATION", "AUTHORIZATION")
+    return value
 
 
 type Uppercase[T] = Annotated[T, BeforeValidator(to_uppercase)]
