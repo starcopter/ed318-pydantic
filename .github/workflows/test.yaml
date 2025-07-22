@@ -20,7 +20,6 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
-          version: "0.6.8"
           enable-cache: true
 
       - name: Set up Python
@@ -41,8 +40,40 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install and run ruff
+      - name: Lint using ruff
         uses: astral-sh/ruff-action@v3
 
-      - name: Check formatting
-        run: ruff format --check --diff
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Format using ruff
+        uses: astral-sh/ruff-action@v3
+        with:
+          args: "format --check --diff"
+
+  type:
+    name: Types
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: pyproject.toml
+
+      - name: Install the project
+        run: uv sync --locked
+
+      - name: Type-Check using ty
+        run: uv run ty check
