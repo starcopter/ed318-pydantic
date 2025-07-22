@@ -55,8 +55,8 @@ jobs:
         with:
           args: "format --check --diff"
 
-  typecheck:
-    name: Type-Check
+  type:
+    name: Types
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
