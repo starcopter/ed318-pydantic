@@ -3,6 +3,8 @@
 
 ## Latest Changes
 
+* Add Type Checking. PR [#8](https://github.com/starcopter/ed318-pydantic/pull/8) by [@Finwood](https://github.com/Finwood).
+
 ### Fixes
 
 * 🐛 Require at least one zoneAuthority entry for a UASZone. PR [#7](https://github.com/starcopter/ed318-pydantic/pull/7) by [@Finwood](https://github.com/Finwood).
